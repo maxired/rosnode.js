@@ -1,0 +1,22 @@
+{
+  "name": "rosnode.js",
+  "version": "0.0.0",
+  "description": "rosnode.js ==========",
+  "main": "ros.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/maxired/rosnode.js.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/maxired/rosnode.js/issues"
+  },
+  "homepage": "https://github.com/maxired/rosnode.js",
+  "dependencies": {
+    "ws": "~0.4.31"
+  }
+}
