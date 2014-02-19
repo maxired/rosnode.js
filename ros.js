@@ -21,18 +21,24 @@ function ros(url , cb){
 					el(data);
 				})
 			}
+		}else if(data.op ==="service_response"){
+			if(self._called[data.id]){
+				self._called[data.id]( null ,data);
+				delete self._called[data.id];
+			}
 		}
 	});
 }
 
 ros.prototype._subscribed = {};
 ros.prototype._published = {};
+ros.prototype._called = {};
 
 ros.prototype._buildID = function(type , topic){
 	return type+":"+topic+":"+Math.random();
 }
 ros.prototype.send = function( obj ){
-	obj.id = obj.id || this._buildID(obj.type, obj.topic);
+	obj.id = obj.id || this._buildID( obj.type ||obj.op, obj.topic);
 	obj.compression = obj.compression || "none";
 
 	this._ws.send( JSON.stringify( obj));
@@ -75,4 +81,17 @@ ros.prototype.publish = function( opt, message){
 	this.send( { op :"publish" , topic:topic , type:type, msg : message})
 
 }
+
+
+ros.prototype.call = function( name , args , cb){
+	var msg = {op:"call_service",service: name};
+	
+	 msg.args = cb? args  :  {} 
+	
+	var id = this._buildID("call_service" ,name);
+	msg.id = id;
+	this._called[id] = cb || args;
+	this.send( msg);
+}
+
 module.exports= ros;

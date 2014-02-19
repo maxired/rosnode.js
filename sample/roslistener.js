@@ -6,8 +6,10 @@ var myros = new ros( "ws://127.0.0.1:9090", function( err, ros){
 
 	setInterval( function(){
 
-	ros.publish("/toto", "worldl");
-
+		ros.publish("/toto", "worldl");
+		ros.call("/rosapi/topics"  , function(err, data){
+			console.log(data);
+		})
 
 	} , 1000) ; 
 });
