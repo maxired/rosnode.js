@@ -26,13 +26,22 @@ function ros(url , cb){
 				self._called[data.id]( null ,data);
 				delete self._called[data.id];
 			}
-		}
+		}else if(data.op === "service_request"){
+			var name = data.request_id.split('_')[0].split(':')[1];
+			if( name in self._provided){
+				self._provided[name].forEach(function(el){
+					el(data);
+				})
+			}
+		};
+
 	});
 }
 
 ros.prototype._subscribed = {};
 ros.prototype._published = {};
 ros.prototype._called = {};
+ros.prototype._provided = {};
 
 ros.prototype._buildID = function(type , topic){
 	return type+":"+topic+":"+Math.random();
@@ -92,6 +101,30 @@ ros.prototype.call = function( name , args , cb){
 	msg.id = id;
 	this._called[id] = cb || args;
 	this.send( msg);
+}
+
+
+ros.prototype.provide = function( opt , cb){
+	//first we need to advertise
+	var name = opt.name ||opt;
+	var type = opt.type || "Empty"
+	var module = opt.module || "std_srvs";
+	//var 
+	if(!this._provided[name]){
+		this._provided[name] = []
+		var msg = {op:"advertise_service",service_name: name,  service_module:module , service_type:type };
+		this.send( msg);
+	}
+	this._provided[name].push(cb);
+	
+	//then call callback
+}
+
+ros.prototype.answer = function(req, res){
+
+	var msg = {op:"service_response","id": req.request_id , "request_id" :req.request_id , data : res ||{} };
+	this.send( msg);
+
 }
 
 module.exports= ros;
